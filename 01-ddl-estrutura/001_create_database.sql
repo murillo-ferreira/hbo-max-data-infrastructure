@@ -1,0 +1,5 @@
+-- Active: 1779147706552@@127.0.0.1@1433@master
+IF DB_ID('hbo_db') IS NULL
+BEGIN
+    CREATE DATABASE hbo_db;
+END;
