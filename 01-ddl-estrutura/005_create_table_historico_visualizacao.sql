@@ -1,7 +1,5 @@
 USE hbo_db;
 GO
-DROP TABLE IF EXISTS historico_visualizacao;
-GO  
 CREATE TABLE historico_visualizacao (
     id INT PRIMARY KEY IDENTITY(1,1),
     usuario_id INT NOT NULL,

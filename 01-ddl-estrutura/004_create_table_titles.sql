@@ -1,10 +1,6 @@
 USE hbo_db;
 GO
 
-IF OBJECT_ID('[dbo].[titles]', 'U') IS NOT NULL
-    DROP TABLE [dbo].[titles];
-GO
-
 CREATE TABLE [dbo].[titles](
     [id]                   NVARCHAR (50)  NOT NULL,
     [title]                NVARCHAR (255) NOT NULL,
