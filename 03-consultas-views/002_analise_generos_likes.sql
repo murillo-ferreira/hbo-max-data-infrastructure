@@ -7,9 +7,9 @@ USE hbo_db;
 GO
 
 SELECT
-    title,
-    genres
-FROM titles
+    title AS [Título],
+    ISNULL(genres, 'Não especificado') AS [Gênero]
+FROM dbo.titles
 WHERE genres IN (
     '[''comedy'', ''documentation'']', 
     '[''documentation'', ''comedy'']'

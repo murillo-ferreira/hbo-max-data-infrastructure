@@ -11,6 +11,6 @@ SELECT TOP 10
     type AS Tipo,
     imdb_score AS [Avaliação IMDb],
     imdb_votes AS [Total de Votos]
-FROM titles
+FROM dbo.titles
 WHERE imdb_votes > 1000
 ORDER BY imdb_score DESC;
