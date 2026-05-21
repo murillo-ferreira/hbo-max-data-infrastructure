@@ -28,14 +28,15 @@ _Nota: Para rodar o projeto, baixe o arquivo `titles.csv` do link acima._
 
 ## 📐 Modelagem e Arquitetura do Banco de Dados
 
-O banco de dados `hbo_db` foi desenhado para garantir a integridade do catálogo e o rastreio do comportamento dos usuários.
+O banco de dados `hbo_db` adota uma abordagem de modelagem corporativa, isolando os dados cadastrais das operações financeiras/transacionais por meio de uma tabela ponte.
 
 ### Tabelas Estruturadas:
 
 - `dbo.titles`: Catálogo completo de filmes e séries (Origem: Dataset do Kaggle).
-- `dbo.planos`: Planos de assinatura disponíveis na plataforma.
-- `dbo.usuarios`: Cadastro de clientes vinculados a um plano.
-- `dbo.historico_visualizacao`: Tabela intermediária que registra quais títulos foram assistidos por quais usuários, aplicando restrições de `FOREIGN KEY` para garantir a integridade referencial.
+- `dbo.planos`: Catálogo de produtos com tipos de planos de assinatura e precificação.
+- `dbo.usuarios`: Cadastro de informações pessoais e credenciais dos clientes.
+- `dbo.assinaturas`: Tabela ponte (fato) que gerencia o histórico de contratos, vínculos de planos por usuário, datas de vigência e controle de status de assinatura.
+- `dbo.historico_visualizacao`: Registra quais títulos foram assistidos por quais usuários, aplicando restrições rígidas de `FOREIGN KEY` para garantir a integridade referencial.
 
 ---
 
@@ -44,27 +45,28 @@ O banco de dados `hbo_db` foi desenhado para garantir a integridade do catálogo
 1. **Preparar o Servidor:** Certifique-se de ter uma instância do **SQL Server** ativa (seja local via LocalDB/Windows Service, via Docker ou na Nuvem) e conectada ao seu cliente SQL (DBeaver/VS Code).
 2. **Criar a Estrutura (DDL):** Execute os scripts contidos na pasta `01-ddl-estrutura/` para criar o banco `hbo_db`, as tabelas e as chaves estrangeiras.
 3. **Ingestão do Catálogo (DML):** Baixe o dataset no link do Kaggle disponível acima e faça a importação do arquivo `titles.csv` diretamente para a tabela `dbo.titles` usando o assistente do seu cliente SQL.
-4. **Popular Dados Complementares:** Execute os scripts da pasta `02-dml-dados/` para inserir os registros de planos, usuários e históricos de teste.
+4. **Popular Dados Complementares:** Execute os scripts da pasta `02-dml-dados/` para inserir os registros de planos, usuários, assinaturas vinculadas e históricos de teste.
 5. **Executar as Análises:** Os scripts de consulta estão organizados na pasta `03-dql-consultas/`.
 
 ---
 
 ## 📊 Inteligência de Dados & Insights (DQL)
 
-As consultas foram estruturadas para responder a perguntas reais de negócio, divididas por nível de complexidade:
+As consultas foram estruturadas para responder a perguntas reais de negócio, divididas por nível de complexidade e aplicando otimizações sêniores (uso explícito de schemas, aliases curtos e prevenção de I/O desnecessário):
 
 ### 1. Análise Exploratória e Filtros
 
 - **Top 10 IMDb (`001_top_10_titulos_imdb.sql`):** Identifica os títulos mais bem avaliados pelo público, aplicando um filtro de relevância estatística (`imdb_votes > 1000`) para evitar viés de dados.
-- **Isolamento de Gêneros (`002_analise_generos_likes`):** Uma query cirúrgica que lida com dados semiestruturados do CSV para isolar estritamente nichos específicos como _Mockumentaries_ (Comédia + Documentário).
+- **Isolamento de Gêneros (`002_analise_generos_likes.sql`):** Uma query cirúrgica que lida com dados semiestruturados do CSV para isolar estritamente nichos específicos como _Mockumentaries_ (Comédia + Documentário).
 
-### 2. Agrupamentos e Métricas (Em Desenvolvimento ⏳)
+### 2. Agrupamentos e Métricas
 
 - **Insights por Tipo de Conteúdo (`003_analise_insights.sql`):** Consolida o volume total de títulos e calcula a média comparativa de notas do IMDb e TMDb para responder quais formatos (filmes ou séries) performam melhor em engajamento e crítica.
-- **Volume de Lançamentos (`004_volume_lancamentos_ano`):** Análises temporais de lançamentos por ano.
-- **Duração Média (`005_media_duracao_por_tipo`):** Médias de tempo de reprodução do catálogo.
+- **Volume de Lançamentos por Ano (`004_volume_lancamentos_ano.sql`):** Análise temporal do crescimento do catálogo da plataforma ao longo do tempo.
+- **Duração Média do Catálogo (`005_media_duracao_por_tipo.sql`):** Médias de tempo de reprodução segregadas por tipo de conteúdo para apoiar o time de originais.
 
-### 3. Visão Relacional (JOINs) (Em Desenvolvimento ⏳)
+### 3. Visão Relacional Avançada (JOINs & Data Cleansing)
 
-- **Histórico de Usuários (`006_relatorio_historico_usuarios`):** Cruzamento de comportamento do usuário com o histórico de consumo.
-- **Faturamento (`007_faturamento_por_plano`):** Relatório de faturamento por tipo de plano de assinatura.
+- **Histórico de Consumo de Usuários (`006_relatorio_historico_usuarios.sql`):** Cruzamento do comportamento individual de consumo dos usuários. Trata inconsistências de strings vazias originadas no arquivo bruto (`'[]'`) utilizando o combo avançado de funções `ISNULL(NULLIF(t.genres, '[]'), 'Não especificado')`.
+- **Faturamento por Categoria de Plano (`007_faturamento_por_plano.sql`):** Relatório de receita total acumulada por tipo de plano através de um `JOIN` relacional otimizado, omitindo tabelas desnecessárias para menor custo de processamento.
+- **Métricas de Retenção e Saúde da Base (`008_status_assinaturas.sql`):** Monitoramento de saúde de clientes (Churn Rate) que agrupa e contabiliza o volume de usuários com planos ativos versus contratos cancelados.
