@@ -3,7 +3,7 @@ GO
 
 CREATE TABLE usuarios (
     id INT PRIMARY KEY IDENTITY(1,1),
-    nome VARCHAR(20) NOT NULL,
+    nome VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     senha VARCHAR(255) NOT NULL,
     data_criacao DATETIME DEFAULT GETDATE()
