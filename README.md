@@ -4,7 +4,7 @@
 [![DBeaver](https://img.shields.io/badge/DBeaver-382923?style=for-the-badge&logo=dbeaver&logoColor=white)](https://dbeaver.io/)
 [![Kaggle](https://img.shields.io/badge/Kaggle-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/)
 
-Modelagem, ingestão e administração de um banco de dados relacional baseado na plataforma **HBO Max**. O projeto simula o ambiente de produção de um serviço de streaming, cobrindo desde a estruturação das tabelas até rotinas avançadas de tunning, manutenção de índices e otimização de consultas (_Query Optimizer_).
+Modelagem, ingestão e administração de um banco de dados relacional baseado na plataforma **HBO Max**. O projeto simula o ambiente de produção de um serviço de streaming, cobrindo desde a estruturação das tabelas até rotinas avançadas de tunning, manutenção de índices, otimização de consultas (_Query Optimizer_) e estratégias de resiliência.
 
 ---
 
@@ -14,8 +14,9 @@ O repositório está organizado de forma sequencial para implantação e gerenci
 
 - **`01_ddl_estrutura/`**: Criação do banco `hbo_db`, tabelas, restrições de integridade e chaves primárias/estrangeiras.
 - **`02_dml_dados/`**: Scripts de carga e geração de massa de testes (planos, usuários, contratos de assinaturas e histórico).
-- **`03_dql_consultas/`**: Queries analíticas para extração de KPIs de negócio (faturamento, retenção e catálogo).
-- **`04_performance_manutencao/`**: Rotinas de DBA para diagnóstico e correção de fragmentação e atualização de estatísticas.
+- **`03_consultas_analiticas/`**: Queries analíticas para extração de KPIs de negócio (faturamento, retenção e catálogo).
+- **`04_performance_manutencao/`**: Rotinas de DBA para diagnóstico e correção de fragmentação física e atualização de estatísticas.
+- **`05_backup_recovery/`**: Plano de contingência contra desastres com geração de dumps e isolamento via containers Docker.
 
 ---
 
@@ -33,7 +34,7 @@ O desenho da arquitetura separa o catálogo de conteúdo das regras de negócio 
 
 ---
 
-## 📊 Engenharia de Consultas & Insights (DQL)
+## 📊 Engenharia de Consultas & Insights
 
 As consultas foram escritas focando em baixo custo computacional, evitando buscas _full-table_ e resolvendo dores reais de tomada de decisão:
 
@@ -42,7 +43,7 @@ As consultas foram escritas focando em baixo custo computacional, evitando busca
 - **`001_top_10_titulos_imdb.sql`**: Filtro de relevância para identificar os principais conteúdos da plataforma, ignorando vieses por baixo volume de votos (`imdb_votes > 1000`).
 - **`002_analise_generos_likes.sql`**: Tratamento de dados semiestruturados do CSV para isolar nichos específicos (ex: _Mockumentaries_).
 - **`003_analise_insights.sql`** e **`005_media_duracao_por_tipo.sql`**: Análise comparativa (filmes vs. séries) de notas médias e tempo de tela para direcionar investimentos em produções originais.
-- **`004_volume_lancamentos_ano.sql`**: Histórico de crescimento anual do catálogo.
+- **`004_volume_lancamentos_ano.sql`**: Histórico de crescimento anual do catálogo de filmes.
 
 ### Finanças e Retenção
 
@@ -54,7 +55,7 @@ As consultas foram escritas focando em baixo custo computacional, evitando busca
 
 ## 🛠️ Performance & Administração (DBA)
 
-A pasta `04_performance_manutencao/` contém rotinas de infraestrutura para garantir a escalabilidade do banco de dados:
+As pastas `04_performance_manutencao/` e `05_backup_recovery/` contêm rotinas de infraestrutura para garantir a escalabilidade e a segurança do ecossistema:
 
 ### 1. Saúde Física (Fragmentação de Índices)
 
@@ -66,6 +67,11 @@ A pasta `04_performance_manutencao/` contém rotinas de infraestrutura para gara
 - **Auditoria:** Mapeamento da idade das estatísticas que alimentam o _Query Optimizer_ através de `sys.stats` e `STATS_DATE`.
 - **Atualização:** Execução de `UPDATE STATISTICS ... WITH FULLSCAN` para forçar a recontagem precisa do histograma de dados, evitando planos de execução ruins e picos de CPU.
 
+### 3. Continuidade de Negócios (Backup & Restore)
+
+- **Isolamento:** Ciclo completo de geração de arquivos `.bak` dentro do ambiente Linux do container Docker.
+- **Plano de Contingência:** Scripts automatizados para simulação de desastres, queda de banco de dados (`DROP DATABASE`) e recuperação imediata com consistência de estado (`RESTORE DATABASE`).
+
 ---
 
 ## ⚙️ Como Executar
@@ -73,4 +79,4 @@ A pasta `04_performance_manutencao/` contém rotinas de infraestrutura para gara
 1. Crie a estrutura do banco rodando os scripts da pasta `01_ddl_estrutura/`.
 2. Baixe o `titles.csv` no Kaggle e importe os dados para a tabela `dbo.titles` via assistente do seu cliente SQL (DBeaver/VS Code).
 3. Execute os scripts da pasta `02_dml_dados/` para gerar a massa de testes automatizada (1000 usuários e assinaturas).
-4. Utilize as consultas das pastas `03_dql_consultas/` e `04_performance_manutencao/` para análises e testes de tunning.
+4. Utilize as consultas e rotinas das pastas `03_consultas_analiticas/`, `04_performance_manutencao/` e `05_backup_recovery/` para análises e testes de infraestrutura.
