@@ -19,7 +19,7 @@ Data modeling, ingestion pipeline, and administration of a relational database s
 The repository follows a strict, numbered sequential deployment pipeline to ensure database evolution predictability:
 
 ```text
-MEU-PORTFOLIO-DB/
+hbo-max-data-infrastructure/
 ├── 01_database_engineering/
 │   ├── 01_ddl_structure/             # Schema architecture and explicit constraints
 │   ├── 02_dml_initial_load/          # Data seed orchestration and load pipelines

@@ -19,7 +19,7 @@ Modelagem de dados, pipeline de ingestão e administração de um sistema de ban
 O repositório segue um pipeline de implantação sequencial e numerado estrito para garantir a previsibilidade da evolução do banco de dados:
 
 ```text
-MEU-PORTFOLIO-DB/
+hbo-max-data-infrastructure/
 ├── 01_database_engineering/
 │   ├── 01_ddl_structure/             # Arquitetura de esquema e restrições explícitas
 │   ├── 02_dml_initial_load/          # Orquestração de massa de testes (seeds) e pipelines de carga
