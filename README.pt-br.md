@@ -1,5 +1,9 @@
 # 🎬 HBO Max - Infraestrutura de Banco de Dados e Engenharia SQL
 
+<p align="left">
+  <a href="README.md">🌐 View in English</a>
+</p>
+
 [![SQL Server](https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)](https://www.microsoft.com/pt-br/sql-server/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
