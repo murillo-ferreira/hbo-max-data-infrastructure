@@ -1,5 +1,9 @@
 # 📁 06 - Backup & Recovery (Docker Multiplataforma)
 
+<p align="left">
+  <a href="README.md">🌐 View in English</a>
+</p>
+
 Este módulo demonstra a estratégia de resiliência de dados do projeto, cobrindo o ciclo completo de geração de backup, exportação de segurança para a máquina física (Host) e restauração pós-desastre.
 
 ## Como Executar o Fluxo

@@ -1,5 +1,9 @@
 # 📁 06 - Backup & Recovery (Multiplatform Docker)
 
+<p align="left">
+  <a href="README.pt-br.md">🌐 Ver em Português</a>
+</p>
+
 This module demonstrates the project's data resilience strategy, covering the complete lifecycle of backup generation, security extraction to the physical machine (Host), and post-disaster restoration.
 
 ## How to Execute the Lifecycle
