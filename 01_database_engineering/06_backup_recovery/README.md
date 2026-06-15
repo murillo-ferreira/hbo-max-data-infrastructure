@@ -1,38 +1,35 @@
-# 📁 05 - Backup & Recovery (Docker Multiplataforma)
+# 📁 06 - Backup & Recovery (Multiplatform Docker)
 
-Este módulo demonstra a estratégia de resiliência de dados do projeto, cobrindo o ciclo completo de geração de backup, exportação de segurança para a máquina física (Host) e restauração pós-desastre.
+This module demonstrates the project's data resilience strategy, covering the complete lifecycle of backup generation, security extraction to the physical machine (Host), and post-disaster restoration.
 
-## Como Executar o Fluxo
+## How to Execute the Lifecycle
 
-### 1. Gerar o Backup Interno
+### 1. Generate the Internal Backup
+Open your SQL editor connected to the container and execute the first part of the script (`BACKUP DATABASE`). This will generate the isolated `.bak` file inside the container's Linux environment at `/var/opt/mssql/data/hbo_db.bak`.
 
-Abra o seu editor SQL conectado ao container e execute a primeira parte do script `001_backup-restore.sql` (`BACKUP DATABASE`). Isso gerará o arquivo `.bak` isolado dentro do ambiente Linux do container.
+### 2. Copy the Backup to the Physical Machine (Host)
+Since the container operates as an isolated sandbox, we extract the `.bak` file to your actual host machine to ensure true data redundancy.
 
-### 2. Copiar o Backup para a Máquina Física (Host)
+Open your operating system's terminal (Terminal on Linux/Mac or PowerShell/CMD on Windows) and run the command below:
 
-Como o container funciona como um ambiente isolado, precisamos extrair o arquivo `.bak` para a sua máquina real para garantir a segurança dos dados.
-
-Abra o terminal do seu sistema operacional (Terminal no Linux/Mac ou PowerShell/CMD no Windows) e execute o comando abaixo, substituindo `<nome_do_seu_container>` pelo nome real do container configurado no seu ambiente:
-
-#### No Linux / No Mac
-
+#### On Linux / Mac
 ```bash
-docker cp <nome_do_seu_container>:/var/opt/mssql/data/backup_portfolio.bak /home/seu_usuario/Documents/SQL_Backups/
+docker cp <your_container_name>:/var/opt/mssql/data/hbo_db.bak ~/Documents/SQL_Backups/
 
 ```
 
-#### No Windows
+#### On Windows
 
 ```bash
-docker cp <nome_do_seu_container>:/var/opt/mssql/data/backup_portfolio.bak C:\SQL_Backups\
+docker cp <your_container_name>:/var/opt/mssql/data/hbo_db.bak C:\SQL_Backups\
 
 ```
 
-> 💡 **Nota de Produção:** Se você utilizou a configuração padrão deste repositório, substitua `<nome_do_seu_container>` pelo nome do container ativo no seu Docker Desktop / CLI. Certifique-se também de que a pasta de destino (`SQL_Backups`) já exista na sua máquina física antes de rodar o comando.
+> 💡 **Production Note:** Replace `<your_container_name>` with the actual active container name configured in your Docker Desktop / CLI environment. Also, ensure that the target directory (`SQL_Backups`) already exists on your physical host machine before executing the command.
 
-### 3. Simular o Desastre e Rodar o Restore
+### 3. Simulate Disaster & Execute Restore
 
-Para homologar que o backup é válido e resiliente:
+To validate that the backup is resilient and production-ready:
 
-1. Execute a segunda parte do script `001_backup-restore.sql` para forçar a queda e exclusão completa da database `hbo_db`.
-2. Execute a terceira parte (`RESTORE DATABASE`) para acionar o plano de contingência e restaurar o banco de dados exatamente do ponto onde o backup foi tirado.
+1. Run the second phase of the maintenance script to forcefully terminate active connections and drop the `hbo_db` database.
+2. Run the final phase (`RESTORE DATABASE`) to trigger the contingency plan and restore the database state seamlessly.
