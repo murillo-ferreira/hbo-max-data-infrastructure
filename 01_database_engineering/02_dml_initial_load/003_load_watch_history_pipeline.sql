@@ -1,0 +1,4 @@
+-- NOTE: This table records streaming events and is empty during the database setup.
+-- It is dynamically populated via the Python ETL Pipeline to simulate user behavior.
+-- It requires data from 'dbo.users' and 'dbo.titles' to maintain referential integrity.
+-- Check the automation scripts inside: 02_data_pipeline_python/
