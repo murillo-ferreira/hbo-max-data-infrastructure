@@ -1,82 +1,101 @@
-# 🎬 HBO Max - Infraestrutura de Dados e Engenharia SQL
+# 🎬 HBO Max - Data Engineering & SQL Database Infrastructure
 
-[![SQL Server](https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)](https://www.microsoft.com/pt-br/sql-server/)
-[![DBeaver](https://img.shields.io/badge/DBeaver-382923?style=for-the-badge&logo=dbeaver&logoColor=white)](https://dbeaver.io/)
+<p align="left">
+  <a href="README.pt-br.md">🌐 Ver em Português</a>
+</p>
+
+[![SQL Server](https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)](https://www.microsoft.com/en-us/sql-server/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)](https://git-scm.com/)
 [![Kaggle](https://img.shields.io/badge/Kaggle-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/)
 
-Modelagem, ingestão e administração de um banco de dados relacional baseado na plataforma **HBO Max**. O projeto simula o ambiente de produção de um serviço de streaming, cobrindo desde a estruturação das tabelas até rotinas avançadas de tunning, manutenção de índices, otimização de consultas (_Query Optimizer_) e estratégias de resiliência.
+Data modeling, ingestion pipeline, and administration of a relational database system based on the **HBO Max** streaming platform. This project simulates an enterprise-level production environment, covering everything from strict DDL schema enforcement to advanced query optimization, index physical defragmentation, and disaster recovery strategies.
 
 ---
 
-## 🧭 Estrutura do Projeto
+## 🧭 Project Architecture & Directory Structure
 
-O repositório está organizado de forma sequencial para implantação e gerenciamento do banco:
+The repository follows a strict, numbered sequential deployment pipeline to ensure database evolution predictability:
 
-- **`01_ddl_estrutura/`**: Criação do banco `hbo_db`, tabelas, restrições de integridade e chaves primárias/estrangeiras.
-- **`02_dml_dados/`**: Scripts de carga e geração de massa de testes (planos, usuários, contratos de assinaturas e histórico).
-- **`03_consultas_analiticas/`**: Queries analíticas para extração de KPIs de negócio (faturamento, retenção e catálogo).
-- **`04_performance_manutencao/`**: Rotinas de DBA para diagnóstico e correção de fragmentação física e atualização de estatísticas.
-- **`05_backup_recovery/`**: Plano de contingência contra desastres com geração de dumps e isolamento via containers Docker.
+```text
+MEU-PORTFOLIO-DB/
+├── 01_database_engineering/
+│   ├── 01_ddl_structure/             # Schema architecture and explicit constraints
+│   ├── 02_dml_initial_load/          # Data seed orchestration and load pipelines
+│   ├── 03_analytical_views/          # Business intelligence and analytical KPI views
+│   ├── 04_performance_tuning/         # Index defragmentation and statistics optimization
+│   ├── 05_database_security/         # Least privilege access and RBAC setup
+│   └── 06_backup_recovery/           # Disaster recovery and Docker-isolated backup routines
+├── 02_data_pipeline_python/          # Automated data generation and ingestion
+└── 03_analytics_dashboard/           # Power BI semantic model and data visualization
 
----
-
-## 🗂️ Modelagem de Dados
-
-O desenho da arquitetura separa o catálogo de conteúdo das regras de negócio de faturamento e usuários:
-
-- `dbo.titles`: Catálogo de filmes e séries integrados via dataset do Kaggle.
-- `dbo.planos`: Portfólio de produtos e precificação da plataforma.
-- `dbo.usuarios`: Cadastro de clientes e credenciais de acesso.
-- `dbo.assinaturas`: Tabela fato que gerencia os contratos vigentes, histórico de planos e controle de cancelamentos (Churn).
-- `dbo.historico_visualizacao`: Registro de consumo de conteúdo por usuário para motores de recomendação.
-
-> 💾 **Fonte dos Dados:** O catálogo bruto utiliza o dataset público [HBO Max TV Shows and Movies (Victor Soeiro - Kaggle)](https://www.kaggle.com/datasets/victorsoeiro/hbo-max-tv-shows-and-movies). O arquivo `titles.csv` deve ser importado diretamente para a tabela `dbo.titles`.
+```
 
 ---
 
-## 📊 Engenharia de Consultas & Insights
+## 🗂️ Data Modeling & Constraints Enforcement
 
-As consultas foram escritas focando em baixo custo computacional, evitando buscas _full-table_ e resolvendo dores reais de tomada de decisão:
+The relational schema decouples core catalog data from billing, users, and tracking domain boundaries. All constraints are explicitly named to avoid server-generated dynamic identifiers, ensuring maintainability:
 
-### Catálogo e Engajamento
+* `dbo.titles`: Content catalog schema containing movie and show metadata. Primary key enforced via `PK_titles`.
+* `dbo.plans`: Product portfolio management and pricing architecture. Primary key enforced via `PK_plans_id`.
+* `dbo.users`: Client authentication data and credentials. Regulated by `PK_users_id` and unique business rules.
+* `dbo.subscriptions`: Fact table tracking contractual binding, user subscription logs, and Churn metrics. Hard-linked via `FK_subscriptions_users` and `FK_subscriptions_plans`.
+* `dbo.watch_history`: User engagement log designed for analytic processing and recommendation engines. Hard-linked via `FK_watch_history_users` and `FK_watch_history_titles`.
 
-- **`001_top_10_titulos_imdb.sql`**: Filtro de relevância para identificar os principais conteúdos da plataforma, ignorando vieses por baixo volume de votos (`imdb_votes > 1000`).
-- **`002_analise_generos_likes.sql`**: Tratamento de dados semiestruturados do CSV para isolar nichos específicos (ex: _Mockumentaries_).
-- **`003_analise_insights.sql`** e **`005_media_duracao_por_tipo.sql`**: Análise comparativa (filmes vs. séries) de notas médias e tempo de tela para direcionar investimentos em produções originais.
-- **`004_volume_lancamentos_ano.sql`**: Histórico de crescimento anual do catálogo de filmes.
-
-### Finanças e Retenção
-
-- **`006_relatorio_historico_usuarios.sql`**: Consolidação do comportamento de consumo individual com tratamento de strings nulas/vazias do CSV (`ISNULL(NULLIF(..., '[]'), 'Não especificado')`).
-- **`007_faturamento_por_plano.sql`**: Relatório de receita total acumulada por tipo de produto através de relacionamentos diretos.
-- **`008_status_assinaturas.sql`**: Volumetria de usuários ativos vs. cancelados para cálculo de taxa de evasão (Churn Rate).
+> 💾 **Data Source:** The core media metadata leverages the public dataset [HBO Max TV Shows and Movies (Victor Soeiro - Kaggle)](https://www.kaggle.com/datasets/victorsoeiro/hbo-max-tv-shows-and-movies). The raw source is processed and mapped to fit SQL server micro-datatypes (e.g., `SMALLINT` for years, `TINYINT` for durations/seasons) to minimize memory foot-print.
 
 ---
 
-## 🛠️ Performance & Administração (DBA)
+## 📊 Analytical Views & Business Intelligence
 
-As pastas `04_performance_manutencao/` e `05_backup_recovery/` contêm rotinas de infraestrutura para garantir a escalabilidade e a segurança do ecossistema:
+Database views inside `03_analytical_views/` are engineered with SARGable arguments, avoiding full-table scans and utilizing index coverage:
 
-### 1. Saúde Física (Fragmentação de Índices)
+### Catalog & Engagement Performance
 
-- **Diagnóstico:** Monitoramento via `sys.dm_db_index_physical_stats` para identificar degradação física dos índices após operações de escrita/exclusão.
-- **Correção:** Aplicação de `ALTER INDEX ... REORGANIZE` para fragmentações moderadas (5% a 30%) sem _downtime_, e `ALTER INDEX ... REBUILD` para estados críticos (acima de 30%) com reestruturação completa de páginas.
+* `001_top_10_imdb_titles.sql`: Identifies top-tier content by applying a threshold filter to mitigate low-volume voting bias (`imdb_votes > 1000`).
+* `002_genre_coexistence.sql`: Parses semi-structured array data from the source to isolate specific niches and genre correlation.
+* `003_content_performance_insights.sql` & `005_average_duration_by_type.sql`: Comparative metric analysis evaluating movies vs. series runtime behavior and score distributions to guide original production investment.
+* `004_release_volume_by_year.sql`: Tracks yearly historical catalog expansion.
 
-### 2. Saúde Lógica (Estatísticas do Otimizador)
+### Retention & Financial Health
 
-- **Auditoria:** Mapeamento da idade das estatísticas que alimentam o _Query Optimizer_ através de `sys.stats` e `STATS_DATE`.
-- **Atualização:** Execução de `UPDATE STATISTICS ... WITH FULLSCAN` para forçar a recontagem precisa do histograma de dados, evitando planos de execução ruins e picos de CPU.
-
-### 3. Continuidade de Negócios (Backup & Restore)
-
-- **Isolamento:** Ciclo completo de geração de arquivos `.bak` dentro do ambiente Linux do container Docker.
-- **Plano de Contingência:** Scripts automatizados para simulação de desastres, queda de banco de dados (`DROP DATABASE`) e recuperação imediata com consistência de estado (`RESTORE DATABASE`).
+* `006_user_history_report.sql`: Consolidates user streaming history with complex string sanitization routines.
+* `007_revenue_by_plan.sql`: Measures total accumulated gross revenue split by product type.
+* `008_subscriptions_status.sql`: Monitors Active vs. Canceled customer volume to compute the platform's Evasion/Churn Rate.
 
 ---
 
-## ⚙️ Como Executar
+## 🛠️ Database Administration (DBA) & Infrastructure
 
-1. Crie a estrutura do banco rodando os scripts da pasta `01_ddl_estrutura/`.
-2. Baixe o `titles.csv` no Kaggle e importe os dados para a tabela `dbo.titles` via assistente do seu cliente SQL (DBeaver/VS Code).
-3. Execute os scripts da pasta `02_dml_dados/` para gerar a massa de testes automatizada (1000 usuários e assinaturas).
-4. Utilize as consultas e rotinas das pastas `03_consultas_analiticas/`, `04_performance_manutencao/` e `05_backup_recovery/` para análises e testes de infraestrutura.
+The core database engine reliability rests on infrastructure automation scripts:
+
+### 1. Index Fragmentation Maintenance (`04_performance_tuning/`)
+
+* **Diagnostics:** Evaluates physical page allocation degradation using the `sys.dm_db_index_physical_stats` Dynamic Management View (DMV).
+* **Mitigation:** Automates policy-driven remediation: Executes `ALTER INDEX ... REORGANIZE` for moderate fragmentation (5% to 30%) with zero downtime, and triggers `ALTER INDEX ... REBUILD` for severe fragmentation (> 30%) to compress and redistribute data pages from scratch.
+
+### 2. Optimizer Cost Balancing (`04_performance_tuning/`)
+
+* **Audit:** Scans metadata flags via `sys.stats` combined with the `STATS_DATE()` function to monitor optimizer statistics freshness.
+* **Execution:** Fires `UPDATE STATISTICS ... WITH FULLSCAN` routines to recalculate data distribution histograms, ensuring the Query Optimizer generates fast execution plans and avoids CPU-intensive scans.
+
+### 3. Role-Based Access Control (`05_database_security/`)
+
+* **Least Privilege:** Completely isolates database manipulation by creating dedicated, low-privilege application logins.
+* **Granular Grants:** Restricts pipeline service accounts (e.g., Pandas integration context) strictly to explicit Data Manipulation Language (DML) scopes (`SELECT`, `INSERT`), preventing security breaches.
+
+### 4. Disaster Recovery & Resilience (`06_backup_recovery/`)
+
+* **Docker-Targeted Storage:** Backs up the entire environment into a compressed `.bak` file inside the isolated Linux filesystem of the SQL Server Docker container.
+* **Disaster Simulation:** Scripted simulation that cuts active processes using `SINGLE_USER WITH ROLLBACK IMMEDIATE`, purges the database with `DROP DATABASE`, and verifies data integrity by executing an instantaneous recovery through `RESTORE DATABASE ... WITH REPLACE`.
+
+---
+
+## ⚙️ Deployment & Execution Guide
+
+1. **Spin up the infrastructure:** Ensure your local Docker container engine is running SQL Server.
+2. **Generate the Database Schema:** Execute the scripts inside `01_ddl_structure/` in chronological order to build `hbo_db` and its constraints.
+3. **Ingest Catalogs & Run Seeds:** Import the processed dataset to `dbo.titles` and execute the files under `02_dml_initial_load/` to generate the mock dataset.
+4. **Run Maintenance & Analytics:** Deploy the analytical views and run the optimization and security control files as needed for validation.
