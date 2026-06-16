@@ -35,7 +35,7 @@ O esquema relacional desacopla os dados principais do catálogo das fronteiras d
 * `dbo.subscriptions`: Tabela fato que rastreia vínculos contratuais, logs de assinatura de usuários e métricas de Churn. Vinculada rigidamente via `FK_subscriptions_users` and `FK_subscriptions_plans`.
 * `dbo.watch_history`: Log de engajamento do usuário projetado para processamento analítico e motores de recomendação. Vinculado rigidamente via `FK_watch_history_users` and `FK_watch_history_titles`.
 
-> 💾 **Fonte dos Dados e Seeds:** Os metadados principais de mídia utilizam o dataset público [HBO Max TV Shows and Movies (Victor Soeiro - Kaggle)](https://www.google.com/search?q=https%3A%2F%2Fwww.kaggle.com%2Fdatasets%2Fvictorsoeiro%2Fhbo-max-tv-shows-and-movies). A fonte bruta é processada e mapeada para se ajustar a micro-tipos de dados do SQL Server (ex: `SMALLINT` para anos, `TINYINT` para durações/temporadas) para minimizar o consumo de memória. Parâmetros iniciais, regras de preços e lookups dimensionais são provisionados via seeds estáticos dentro de `03_dml_initial_load/`.
+> 💾 **Fonte dos Dados e Seeds:** Os metadados principais de mídia utilizam o dataset público [HBO Max TV Shows and Movies (Victor Soeiro - Kaggle)](https://www.kaggle.com/datasets/victorsoeiro/hbo-max-tv-shows-and-movies). A fonte bruta é processada e mapeada para se ajustar a micro-tipos de dados do SQL Server (ex: `SMALLINT` para anos, `TINYINT` para durações/temporadas) para minimizar o consumo de memória. Parâmetros iniciais, regras de preços e lookups dimensionais são provisionados via seeds estáticos dentro de `03_dml_initial_load/`.
 
 ---
 
@@ -53,18 +53,11 @@ A camada de aplicação (motores de ingestão Python) não envia queries brutas 
 
 As visões de banco de dados (Views) dentro de `04_analytical_views/` são projetadas com argumentos SARGáveis, evitando varreduras completas de tabelas e utilizando a cobertura de índices:
 
-### Desempenho do Catálogo e Engajamento
-
 * `001_top_10_imdb_titles.sql`: Identifica conteúdos de alto nível aplicando um filtro de limite para mitigar o viés de baixo volume de votos (`imdb_votes > 1000`).
 * `002_genre_coexistence.sql`: Trata e analisa dados de arrays semiestruturados da origem para isolar nichos específicos e correlação de gêneros.
-* `003_content_performance_insights.sql` e `005_average_duration_by_type.sql`: Análise métrica comparativa avaliando o comportamento do tempo de execução de filmes vs. séries e distribuições de notas.
+* `003_content_performance_insights.sql`: Análise métrica comparativa avaliando o comportamento do tempo de execução de filmes vs. séries.
 * `004_release_volume_by_year.sql`: Rastreia a expansão histórica anual do catálogo.
-
-### Retenção e Saúde Financeira
-
-* `006_user_history_report.sql`: Consolida o histórico de streaming dos usuários com rotinas complexas de sanitização de strings.
-* `007_revenue_by_plan.sql`: Mede a receita bruta total acumulada dividida por tipo de produto.
-* `008_subscriptions_status.sql`: Monitora o volume de clientes Ativos vs. Cancelados para calcular a taxa de evasão (Churn Rate) da plataforma.
+* `005_average_duration_by_type.sql`: Análise métrica comparativa de durações para direcionar investimentos.
 
 ---
 

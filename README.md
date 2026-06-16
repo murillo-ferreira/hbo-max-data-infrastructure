@@ -1,15 +1,5 @@
 # 🎬 HBO Max - Data Engineering & SQL Database Infrastructure
 
-<p align="left">
-  <a href="README.pt-br.md">🌐 Ver em Português</a>
-</p>
-
-[![SQL Server](https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)](https://www.microsoft.com/en-us/sql-server/)
-[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)](https://git-scm.com/)
-[![Kaggle](https://img.shields.io/badge/Kaggle-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white)](https://www.kaggle.com/)
-
 Data modeling, ingestion pipeline, and administration of a relational database system based on the **HBO Max** streaming platform. This project simulates an enterprise-level production environment, covering everything from strict DDL schema enforcement to advanced query optimization, index physical defragmentation, and disaster recovery strategies.
 
 ---
@@ -27,7 +17,7 @@ hbo-max-data-infrastructure/
 │   ├── 04_analytical_views/          # Business intelligence and analytical KPI views
 │   ├── 05_database_security/         # Least privilege access and RBAC setup
 │   ├── 06_backup_recovery/           # Disaster recovery and Docker-isolated backup routines
-│   └── 07_performance_tuning/         # Index defragmentation and statistics optimization
+│   └── 07_performance_tuning/        # Index defragmentation and statistics optimization
 ├── 02_data_pipeline_python/          # Automated data generation and ingestion
 └── 03_analytics_dashboard/           # Power BI semantic model and data visualization
 
@@ -66,20 +56,13 @@ The application layer (Python ingestion engines) does not dispatch bare, unsecur
 
 ## 📊 Analytical Views & Business Intelligence
 
-Database views inside `04_analytical_views/` are engineered with SARGable arguments, avoiding full-table scans and utilizing index coverage:
-
-### Catalog & Engagement Performance
+Database views inside `04_analytical_views/` as shown in image_dbb0e9.png are engineered with SARGable arguments, avoiding full-table scans and utilizing index coverage:
 
 * `001_top_10_imdb_titles.sql`: Identifies top-tier content by applying a threshold filter to mitigate low-volume voting bias (`imdb_votes > 1000`).
 * `002_genre_coexistence.sql`: Parses semi-structured array data from the source to isolate specific niches and genre correlation.
-* `003_content_performance_insights.sql` & `005_average_duration_by_type.sql`: Comparative metric analysis evaluating movies vs. series runtime behavior and score distributions to guide original production investment.
+* `003_content_performance_insights.sql`: Evaluates comparative metrics between content types.
 * `004_release_volume_by_year.sql`: Tracks yearly historical catalog expansion.
-
-### Retention & Financial Health
-
-* `006_user_history_report.sql`: Consolidates user streaming history with complex string sanitization routines.
-* `007_revenue_by_plan.sql`: Measures total accumulated gross revenue split by product type.
-* `008_subscriptions_status.sql`: Monitors Active vs. Canceled customer volume to compute the platform's Evasion/Churn Rate.
+* `005_average_duration_by_type.sql`: Analyzes runtime behavior to guide production investment.
 
 ---
 
@@ -109,7 +92,7 @@ The core database engine reliability rests on infrastructure automation scripts:
 
 ---
 
-### ⚙️ Deployment & Execution Guide
+## ⚙️ Deployment & Execution Guide
 
 1. **Spin up the infrastructure:** Ensure your local Docker container engine is running SQL Server.
 2. **Generate the Database Schema:** Execute the scripts inside `01_ddl_structure/` in chronological order to build `hbo_db` and its constraints.
