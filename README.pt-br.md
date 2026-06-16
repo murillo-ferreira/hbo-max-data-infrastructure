@@ -94,10 +94,13 @@ A confiabilidade do motor principal depende de scripts de automação:
 
 ---
 
-## ⚙️ Guia de Implantação e Execução
+### ⚙️ Guia de Implantação e Execução
 
-1. **Suba a infraestrutura:** Certifique-se de que o motor Docker esteja executando o SQL Server.
-2. **Gere o Esquema:** Execute os scripts dentro de `01_ddl_structure/` em ordem para construir o `hbo_db`.
-3. **Compile a Programabilidade:** Implante os ativos em `02_stored_procedures/`.
-4. **Ingira Catálogos e Seeds:** Execute os arquivos em `03_dml_initial_load/`.
-5. **Valide:** Implante as visões analíticas e rotinas de manutenção conforme necessário.
+1. **Suba a infraestrutura:** Certifique-se de que o motor local do Docker esteja executando o SQL Server.
+2. **Gere o Esquema do Banco:** Execute os scripts dentro de `01_ddl_structure/` em ordem cronológica para construir o `hbo_db` e suas restrições.
+3. **Ingestão de Catálogo:** Importe o arquivo `titles.csv` para a tabela `dbo.titles` utilizando o **SQL Server Import Wizard** (procedimento manual padrão vigente até a Release 3.0.0).
+4. **Compile a Programabilidade:** Implante todos os ativos funcionais em `02_stored_procedures/` para estabelecer os limites de manipulação de dados.
+5. **Carga de Seeds e Parâmetros:** Execute os scripts contidos em `03_dml_initial_load/` para popular as tabelas de suporte, planos e usuários.
+6. **Manutenção e Analytics:** Implante as visões analíticas (`04_analytical_views/`) e execute os arquivos de otimização de segurança/performance conforme necessário.
+
+> ⚠️ **Nota de Evolução:** A ingestão via *Import Wizard* está programada para ser descontinuada na Release 3.0.0, onde será substituída por um pipeline automatizado em Python (Pandas), garantindo maior reprodutibilidade e tratamento de erros integrado.

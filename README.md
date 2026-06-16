@@ -109,10 +109,13 @@ The core database engine reliability rests on infrastructure automation scripts:
 
 ---
 
-## ⚙️ Deployment & Execution Guide
+### ⚙️ Deployment & Execution Guide
 
 1. **Spin up the infrastructure:** Ensure your local Docker container engine is running SQL Server.
 2. **Generate the Database Schema:** Execute the scripts inside `01_ddl_structure/` in chronological order to build `hbo_db` and its constraints.
-3. **Compile Database Programmability:** Deploy all functional assets under `02_stored_procedures/` to establish transaction handling boundaries.
-4. **Ingest Catalogs & Run Seeds:** Import the static operational master records through the execution logs found within `03_dml_initial_load/`.
-5. **Run Maintenance & Analytics:** Deploy the analytical views and run the optimization and security control files as needed for validation.
+3. **Catalog Ingestion:** Import the `titles.csv` file into the `dbo.titles` table using the **SQL Server Import Wizard** (standard manual procedure in effect until Release 3.0.0).
+4. **Compile Database Programmability:** Deploy all functional assets under `02_stored_procedures/` to establish transaction handling boundaries.
+5. **Data Seeding:** Execute the scripts located in `03_dml_initial_load/` to populate the auxiliary tables.
+6. **Run Maintenance & Analytics:** Deploy the analytical views and run the optimization and security control files as needed for validation.
+
+> ⚠️ **Evolution Note:** The ingestion via *Import Wizard* is scheduled to be deprecated in Release 3.0.0, where it will be replaced by an automated Python/Pandas pipeline, ensuring better reproducibility and integrated error handling.
