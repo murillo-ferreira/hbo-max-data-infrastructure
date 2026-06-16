@@ -1,4 +1,0 @@
--- NOTE: Subscription records depend on user registration events.
--- This table is populated during Phase 2 via the Python ETL Pipeline,
--- applying business rules to distribute plans and subscription statuses.
--- Check the automation scripts inside: 02_data_pipeline_python/

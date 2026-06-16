@@ -1,4 +1,0 @@
--- NOTE: This table is populated via the SQL Server Import and Export Wizard.
--- The raw dataset (.csv) used for this initial load is located at:
--- 01_database_engineering/02_dml_initial_load/data_seed/
--- Follow the instructions in the main README to download and import the data.

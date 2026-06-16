@@ -1,4 +1,0 @@
--- NOTE: This table is empty during the database infrastructure phase.
--- It is dynamically populated with 1,000 realistic records during Phase 2.
--- Check the Python automation scripts inside:
--- 02_data_pipeline_python/
