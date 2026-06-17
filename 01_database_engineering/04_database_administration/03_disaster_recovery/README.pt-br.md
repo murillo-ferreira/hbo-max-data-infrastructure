@@ -1,39 +1,40 @@
-# 📁 06 - Backup & Recovery (Docker Multiplataforma)
+# 📁 03 - Disaster Recovery
 
-<p align="left">
-  <a href="README.md">🌐 View in English</a>
-</p>
+Este módulo contém as rotinas de segurança para proteção e recuperação do banco de dados `hbo_db`.
 
-Este módulo demonstra a estratégia de resiliência de dados do projeto, cobrindo o ciclo completo de geração de backup, exportação de segurança para a máquina física (Host) e restauração pós-desastre.
+## 📜 Estrutura de Scripts
 
-## Como Executar o Fluxo
+### 1. `001_backup_restore.sql`
 
-### 1. Gerar o Backup Interno
-Abra o seu editor SQL conectado ao container e execute a primeira parte do script (`BACKUP DATABASE`). Isso gerará o arquivo `hbo_db.bak` isolado dentro do ambiente Linux do container no caminho `/var/opt/mssql/data/hbo_db.bak`.
+Este script realiza o ciclo completo de contingência:
 
-### 2. Copiar o Backup para a Máquina Física (Host)
-Como o container funciona como um ambiente isolado, precisamos extrair o arquivo `.bak` para a sua máquina real para garantir a segurança e redundância dos dados.
+* **Backup:** Gera uma cópia integral do banco (`hbo_db.bak`) com verificação de `CHECKSUM`.
+* **Simulação de Desastre:** Force a exclusão do banco de dados após garantir que o backup foi gerado.
+* **Restauração:** Executa o *restore* imediato para validar a integridade dos dados e a disponibilidade do sistema.
 
-Abra o terminal do seu sistema operacional (Terminal no Linux/Mac ou PowerShell/CMD no Windows) e execute o comando abaixo:
+> ⚠️ **Aviso Crítico:** Este script inclui um comando `DROP DATABASE`. **Nunca execute este arquivo em um ambiente de produção ou onde existam dados que não foram extraídos para um local seguro.**
 
-#### No Linux / No Mac
+### 2. `002_verify_backup.sql`
+
+Utilizado para validar o arquivo de backup antes de qualquer operação de restauração:
+
+* **`RESTORE VERIFYONLY`:** Garante que o arquivo de backup não está corrompido e que o SQL Server consegue lê-lo.
+* **`RESTORE HEADERONLY`:** Exibe metadados do backup (data de criação, nome do banco, etc.) para auditoria.
+
+---
+
+## 🚀 Guia de Operação (Multiplatform Docker)
+
+Para manter a redundância externa ao container (Host):
+
+1. **Geração e Extração:**
+Após rodar o backup dentro do container, extraia o arquivo para a sua máquina física para garantir que, caso o container seja destruído, você não perca os dados:
 ```bash
-docker cp <nome_do_seu_container>:/var/opt/mssql/data/hbo_db.bak ~/Documents/SQL_Backups/
+# Exemplo para Linux/Mac ou PowerShell (ajuste o caminho de destino)
+docker cp <nome_do_container>:/var/opt/mssql/backup/hbo_db.bak ~/SeuDiretorioDeBackups/
 
 ```
 
-#### No Windows
 
-```bash
-docker cp <nome_do_seu_container>:/var/opt/mssql/data/hbo_db.bak C:\SQL_Backups\
-
-```
-
-> 💡 **Nota de Produção:** Substitua `<nome_do_seu_container>` pelo nome real do container ativo configurado no seu Docker Desktop / CLI. Certifique-se também de que a pasta de destino (`SQL_Backups`) já exista na sua máquina física antes de rodar o comando.
-
-### 3. Simular o Desastre e Rodar o Restore
-
-Para homologar que o backup é válido e resiliente:
-
-1. Execute a segunda parte do script de manutenção para forçar a queda das conexões e exclusão completa da database `hbo_db`.
-2. Execute a terceira parte (`RESTORE DATABASE`) para acionar o plano de contingência e restaurar o banco de dados exatamente do ponto onde o backup foi tirado.
+2. **Validação de Rotina:**
+Recomenda-se rodar o script `002_verify_backup.sql` semanalmente para garantir que o backup está íntegro e legível.
