@@ -24,11 +24,11 @@ BEGIN
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
-        IF (XACT_STATE()) = -1 OR (XACT_STATE()) = 1
+        IF (XACT_STATE()) <> 0
         BEGIN
         ROLLBACK TRANSACTION;
     END;
-        PRINT 'Error inserting user: ' + ERROR_MESSAGE();
+        THROW;
     END CATCH;
 END;
 GO

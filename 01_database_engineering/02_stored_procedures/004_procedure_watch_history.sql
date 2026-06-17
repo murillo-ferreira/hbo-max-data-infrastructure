@@ -9,20 +9,22 @@ CREATE PROCEDURE dbo.sp_InsertWatchHistory
     @movie_id NVARCHAR(50),
     @view_date DATETIME
 AS
-BEGIN TRY
+BEGIN
     SET NOCOUNT ON;
-    BEGIN TRANSACTION;
-        INSERT INTO dbo.watch_history
-    (user_id, movie_id, view_date)
-VALUES
-    (@user_id, @movie_id, @view_date);
-    COMMIT TRANSACTION;
-END TRY
-BEGIN CATCH
-    IF (XACT_STATE()) = -1 OR (XACT_STATE()) = 1
-    BEGIN
-    ROLLBACK TRANSACTION;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+            INSERT INTO dbo.watch_history
+        (user_id, movie_id, view_date)
+    VALUES
+        (@user_id, @movie_id, @view_date);
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF (XACT_STATE()) <> 0
+        BEGIN
+        ROLLBACK TRANSACTION;
+    END;
+        THROW;
+    END CATCH;
 END;
-    PRINT 'Error inserting watch history record: ' + ERROR_MESSAGE();
-END CATCH;
 GO
