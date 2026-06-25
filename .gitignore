@@ -3,3 +3,4 @@
 .secrets
 *.bak
 .env
+__pycache__/

@@ -1,12 +1,12 @@
 # %%
 import sys
 import pandas as pd
-from jobs.load_to_db import exec_load
-from functions.pipeline_logs import log
+from scripts.load import exec_load
+from lib.logger import log
 from config.database import create_engine
-from functions.api_ids import get_hbo_movie_ids
+from lib.api_client import get_hbo_movie_ids
 from sqlalchemy import text
-from functions.data_filter import movie_data_cleanser
+from lib.transform import movie_data_cleanser
 
 # %%
 engine = create_engine()
