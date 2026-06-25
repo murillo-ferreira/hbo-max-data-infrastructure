@@ -1,10 +1,7 @@
 USE hbo_db;
 GO
 
-DROP PROCEDURE IF EXISTS dbo.sp_UpsertUsers;
-GO
-
-CREATE PROCEDURE dbo.sp_UpsertUsers
+CREATE OR ALTER PROCEDURE dbo.sp_UpsertUsers
     @name VARCHAR(100),
     @email VARCHAR(255),
     @date_created DATETIME

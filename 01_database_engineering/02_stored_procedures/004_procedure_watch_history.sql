@@ -1,10 +1,7 @@
 USE hbo_db;
 GO
 
-DROP PROCEDURE IF EXISTS dbo.sp_InsertWatchHistory;
-GO
-
-CREATE PROCEDURE dbo.sp_InsertWatchHistory
+CREATE OR ALTER PROCEDURE dbo.sp_InsertWatchHistory
     @user_id INT,
     @movie_id NVARCHAR(50),
     @view_date DATETIME

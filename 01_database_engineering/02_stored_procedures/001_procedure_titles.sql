@@ -1,22 +1,20 @@
 USE hbo_db;
 GO
 
-DROP PROCEDURE IF EXISTS dbo.sp_UpsertTitles;
-GO
-
-CREATE PROCEDURE dbo.sp_UpsertTitles
+CREATE OR ALTER PROCEDURE dbo.sp_UpsertTitles
     @id NVARCHAR(50),
     @title VARCHAR(255),
+    @imdb_id NVARCHAR(50),
     @type VARCHAR(50),
     @release_year SMALLINT,
     @runtime TINYINT,
     @genres NVARCHAR(255),
-    @production_countries NVARCHAR(50),
+    @budget INT,
+    @origin_country NVARCHAR(50),
     @seasons TINYINT,
-    @tmdb_id NVARCHAR(50),
-    @tmdb_score DECIMAL(3, 1),
-    @tmdb_votes INT,
-    @tmdb_popularity DECIMAL(10, 3)
+    @vote_average FLOAT,
+    @vote_count INT,
+    @popularity FLOAT
 AS
 BEGIN TRY
     SET NOCOUNT ON;
@@ -24,29 +22,28 @@ BEGIN TRY
         MERGE dbo.titles WITH (HOLDLOCK) AS t
         USING (SELECT
     @id AS id,
+    @imdb_id AS imdb_id,
     @title AS title,
     @type AS type,
     @release_year AS release_year,
     @runtime AS runtime,
     @genres AS genres,
-    @production_countries AS production_countries,
+    @budget AS budget,
+    @origin_country AS origin_country,
     @seasons AS seasons,
-    @tmdb_id AS tmdb_id,
-    @tmdb_score AS tmdb_score,
-    @tmdb_votes AS tmdb_votes,
-    @tmdb_popularity AS tmdb_popularity
+    @vote_average AS vote_average,
+    @vote_count AS vote_count,
+    @popularity AS popularity
               ) AS s
-        ON t.id = s.id
+        ON t.title = s.title AND t.release_year = s.release_year
         WHEN MATCHED THEN
             UPDATE SET 
-                t.title = s.title, 
-                t.tmdb_id = s.tmdb_id, 
-                t.tmdb_score = s.tmdb_score, 
-                t.tmdb_votes = s.tmdb_votes,
-                t.tmdb_popularity = s.tmdb_popularity
+                t.imdb_id = s.imdb_id,
+                t.vote_average = s.vote_average, 
+                t.popularity = s.popularity
         WHEN NOT MATCHED THEN
-            INSERT (id, title, type, release_year, runtime, genres, production_countries, seasons, tmdb_id, tmdb_score, tmdb_votes, tmdb_popularity)
-            VALUES (s.id, s.title, s.type, s.release_year, s.runtime, s.genres, s.production_countries, s.seasons, s.tmdb_id, s.tmdb_score, s.tmdb_votes, s.tmdb_popularity);
+            INSERT (id, imdb_id, title, type, release_year, runtime, genres, budget, origin_country, seasons, vote_average, vote_count, popularity)
+            VALUES (s.id, s.imdb_id, s.title, s.type, s.release_year, s.runtime, s.genres, s.budget, s.origin_country, s.seasons, s.vote_average, s.vote_count, s.popularity);
     COMMIT TRANSACTION
 END TRY
 BEGIN CATCH

@@ -6,18 +6,19 @@ GO
 
 CREATE TABLE dbo.titles
 (
-    id NVARCHAR (50) NOT NULL,
+    id INT NOT NULL,
+    imdb_id NVARCHAR (50) NULL,
     title VARCHAR (255) NOT NULL,
     type VARCHAR (50) NOT NULL,
     release_year SMALLINT NOT NULL,
-    runtime TINYINT NOT NULL,
+    runtime SMALLINT NOT NULL,
     genres NVARCHAR (255) NOT NULL,
-    production_countries NVARCHAR (50) NOT NULL,
-    seasons TINYINT NULL,
-    tmdb_id NVARCHAR (50) NULL,
-    tmdb_score DECIMAL (3,1) NULL,
-    tmdb_votes INT NULL,
-    tmdb_popularity DECIMAL (10,3) NULL,
+    budget INT NULL,
+    origin_country NVARCHAR (50) NOT NULL,
+    seasons SMALLINT NULL,
+    vote_average FLOAT NULL,
+    vote_count INT NULL,
+    popularity FLOAT NULL,
 
     CONSTRAINT PK_titles PRIMARY KEY (id)
 );

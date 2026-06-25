@@ -1,10 +1,7 @@
 USE hbo_db;
 GO
 
-DROP PROCEDURE IF EXISTS dbo.sp_UpsertSubscriptions;
-GO
-
-CREATE PROCEDURE dbo.sp_UpsertSubscriptions
+CREATE OR ALTER PROCEDURE dbo.sp_UpsertSubscriptions
     @user_id INT,
     @plan_id INT,
     @begin_date DATE,
