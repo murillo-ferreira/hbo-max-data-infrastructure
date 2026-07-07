@@ -4,30 +4,22 @@ import pandas as pd
 from scripts.load import exec_load
 from lib.logger import log
 from config.database import create_engine
-from lib.api_client import get_hbo_movie_ids
 from sqlalchemy import text
-from lib.transform import movie_data_cleanser
+from lib.transform import movies_df, tv_shows_df
 
-# %%
 engine = create_engine()
 
-# %%
-def exec_pipeline():
+def get_existing_ids():
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT tmdb_id FROM dbo.titles"))
+        return {row[0] for row in result}
+
+def exec_pipeline(df:pd.DataFrame):
     total_valid_ids = 0
     last_valid_id = None
-    
+
     try:
-        # ID extraction
-        movie_ids = get_hbo_movie_ids()
-
-        # Search for existing IDs
-        with engine.begin() as conn:
-            result = conn.execute(text("SELECT id FROM dbo.titles"))
-            existing_ids = {row[0] for row in result}
-
-        dfMovies = movie_data_cleanser(movie_ids, existing_ids)
-
-        if dfMovies.empty:
+        if df.empty:
                 print("No new data to process. All database records are up to date.")
                 log(
                     status_execution="SUCCESS",
@@ -37,11 +29,11 @@ def exec_pipeline():
                 )
                 return
             
-        total_valid_ids = len(dfMovies)
-        last_valid_id = str(dfMovies["id"].iloc[-1])
+        total_valid_ids = len(df)
+        last_valid_id = str(df["tmdb_id"].iloc[-1])
 
         # Convert np.nan to None (NULL)
-        raw_records = dfMovies.to_dict(orient="records")
+        raw_records = df.to_dict(orient="records")
         procedureData = [{k: (None if pd.isna(v) else v) for k, v in r.items()} for r in raw_records]
         
         # Incremental load via stored procedure
@@ -67,5 +59,10 @@ def exec_pipeline():
         )
         sys.exit(1)
 
-# %%
-exec_pipeline()
+existing_ids = get_existing_ids()
+
+dfMovies = movies_df(existing_ids)
+dfShows = tv_shows_df(existing_ids)
+dfTotal = pd.concat([dfMovies, dfShows])
+
+exec_pipeline(dfTotal)
