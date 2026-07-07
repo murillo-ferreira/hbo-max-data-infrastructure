@@ -1,12 +1,9 @@
-# %%
 from config.database import create_engine
 from datetime import datetime
 from sqlalchemy import text
 
-# %%
 engine = create_engine()
 
-# %%
 def log(status_execution, last_processed_id, total_records_processed, error_message):
     with engine.begin() as conn:
         conn.execute(
