@@ -1,7 +1,9 @@
-# %%
 import sys
 import pandas as pd
-from scripts.load import exec_load
+import random
+from scripts.load import exec_load, exec_load_users, exec_load_subscriptions, exec_load_second_subscriptions, exec_load_churn_rate
+from generators.users import fake_user_generator
+from generators.subscriptions import fake_subscriptions_generator, second_fake_subscriptions_generator, get_eligible_churn_users, churn_rate_generator
 from lib.logger import log
 from config.database import create_engine
 from sqlalchemy import text
@@ -65,4 +67,43 @@ dfMovies = movies_df(existing_ids)
 dfShows = tv_shows_df(existing_ids)
 dfTotal = pd.concat([dfMovies, dfShows])
 
+def run_users_load(quantity):
+    users = fake_user_generator(quantity)
+
+    exec_load_users(users)
+
+    print(f"{len(users)} users inserted with success.")
+
+def run_subscriptions_load(quantity):
+    users = fake_subscriptions_generator(quantity)
+
+    exec_load_subscriptions(users)
+
+    print(f"{len(users)} users inserted with success.")
+
+def run_load_second_subscriptions(percentage: float):
+    with engine.connect() as conn:
+        active_users = conn.execute(text("SELECT user_id, plan_id, begin_date FROM dbo.subscriptions WHERE status = 'ACTIVE'")).mappings().all()
+
+    sample_size = int(len(active_users) * percentage)
+    sample_users = random.sample(active_users, sample_size)
+
+    second_payload_load = second_fake_subscriptions_generator(sample_users)
+    exec_load_second_subscriptions(second_payload_load)
+
+    print(f"{len(sample_users)} users affected with success.")
+
+def run_load_churn_rate(percentage: float):
+
+    raw_churn_data = get_eligible_churn_users()
+    churn_records = churn_rate_generator(raw_churn_data, percentage)
+
+    exec_load_churn_rate(churn_records)
+
+    print(f"{len(churn_records)} users affected with success.")
+
 exec_pipeline(dfTotal)
+run_users_load(10000)
+run_subscriptions_load(10000)
+run_load_second_subscriptions(0.3)
+run_load_churn_rate(0.3)
