@@ -6,13 +6,15 @@ GO
 
 CREATE TABLE dbo.watch_history
 (
-    id INT IDENTITY(1,1),
+    id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
-    content_id INT NOT NULL,
-    view_date DATETIME DEFAULT GETDATE(),
+    title_id INT NOT NULL,
+    watched_at DATETIME NOT NULL,
+    watch_duration INT NOT NULL,
+    device_type VARCHAR(20) NULL,
+    completed BIT NOT NULL DEFAULT 0,
 
-    CONSTRAINT PK_watch_history_id PRIMARY KEY CLUSTERED (id),
     CONSTRAINT FK_watch_history_users FOREIGN KEY (user_id) REFERENCES dbo.users(id),
-    CONSTRAINT FK_watch_history_titles FOREIGN KEY (content_id) REFERENCES dbo.titles(tmdb_id)
+    CONSTRAINT FK_watch_history_titles FOREIGN KEY (title_id) REFERENCES dbo.titles(id)
 );
 GO

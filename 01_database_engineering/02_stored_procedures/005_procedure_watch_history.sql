@@ -3,17 +3,20 @@ GO
 
 CREATE OR ALTER PROCEDURE dbo.sp_InsertWatchHistory
     @user_id INT,
-    @movie_id NVARCHAR(50),
-    @view_date DATETIME
+    @title_id INT,
+    @watched_at DATETIME,
+    @watch_duration INT,
+    @device_type VARCHAR(20),
+    @completed BIT
 AS
 BEGIN
     SET NOCOUNT ON;
     BEGIN TRY
         BEGIN TRANSACTION;
             INSERT INTO dbo.watch_history
-        (user_id, movie_id, view_date)
+        (user_id, title_id, watched_at, watch_duration, device_type, completed)
     VALUES
-        (@user_id, @movie_id, @view_date);
+        (@user_id, @title_id, @watched_at, @watch_duration, @device_type, @completed);
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
