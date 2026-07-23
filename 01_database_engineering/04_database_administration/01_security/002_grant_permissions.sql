@@ -16,6 +16,8 @@ GO
 GRANT SELECT ON OBJECT::dbo.users TO python_pipeline_role;
 GRANT SELECT ON OBJECT::dbo.subscriptions TO python_pipeline_role;
 GRANT INSERT ON OBJECT:: dbo.subscriptions TO python_pipeline_role;
+GRANT SELECT ON OBJECT::dbo.watch_history TO python_pipeline_role;
+GRANT INSERT ON OBJECT:: dbo.watch_history TO python_pipeline_role;
 GRANT INSERT ON OBJECT::dbo.pipeline_logs TO python_pipeline_role;
 GO
 GRANT INSERT ON OBJECT::dbo.titles TO python_pipeline_role;
