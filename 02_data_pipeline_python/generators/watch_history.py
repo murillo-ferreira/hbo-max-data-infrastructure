@@ -26,14 +26,14 @@ def watch_history_generator(quantity: int) -> list:
         else:
             begin_datetime = begin_date
         covered_days = max(0, (dt.date.today() - begin_datetime.date()).days)
-        sorted_days = random.randint(0, covered_days)
+        random_days = random.randint(0, covered_days)
         random_hours = random.randint(0, 23)
         random_minutes = random.randint(0, 59)
         random_seconds = random.randint(0, 59)
 
         title_id = selected_content["title_id"]
         watched_at = begin_datetime + dt.timedelta(
-            days=sorted_days,
+            days=random_days,
             hours=random_hours,
             minutes=random_minutes,
             seconds=random_seconds

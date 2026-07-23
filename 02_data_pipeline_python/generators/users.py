@@ -8,13 +8,9 @@ def fake_user_generator(quantity: int) -> list:
 
     for i in range(quantity):
         name = fake.unique.name()
-        
         domain = fake.email().split("@")[1]
-        
         prefix = name.lower().replace(" ", ".").replace("..", ".")
-        
         email = f"{prefix}@{domain}"
-
         date_created = fake.date_time_between(start_date='-6y', end_date='now')
 
         user = {
