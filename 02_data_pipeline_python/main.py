@@ -102,19 +102,6 @@ def run_load_churn_rate(percentage: float):
 
     print(f"{len(churn_records)} users affected with success.")
 
-# %%
-import sys
-import pandas as pd
-import random
-from scripts.load import exec_load, exec_load_users, exec_load_subscriptions, exec_load_second_subscriptions, exec_load_churn_rate, exec_watch_history
-from generators.users import fake_user_generator
-from generators.subscriptions import fake_subscriptions_generator, second_fake_subscriptions_generator, get_eligible_churn_users, churn_rate_generator
-from generators.watch_history import watch_history_generator
-from lib.logger import log
-from config.database import create_engine
-from sqlalchemy import text
-from lib.transform import movies_df, tv_shows_df
-
 def run_watch_history(quantity):
     history = watch_history_generator(quantity)
 
@@ -122,11 +109,9 @@ def run_watch_history(quantity):
 
     print(f"{len(history)} watch histories inserted with success.")
 
-run_watch_history(100000)
-
-# %%
 exec_pipeline(dfTotal)
 run_users_load(10000)
 run_subscriptions_load(10000)
 run_load_second_subscriptions(0.3)
 run_load_churn_rate(0.3)
+run_watch_history(100000)
