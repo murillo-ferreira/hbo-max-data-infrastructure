@@ -101,3 +101,23 @@ def exec_load_churn_rate(procedure_data):
 
             except Exception as e:
                 print(f"Couldn't cancel subscription: {e}")
+
+def exec_watch_history(procedure_data):
+    with engine.begin() as conn:
+        for record in procedure_data:
+            try:
+                conn.execute(
+                    sqlalchemy.text("""
+                        EXEC dbo.sp_InsertWatchHistory
+                            @user_id = :user_id,
+                            @title_id = :title_id, 
+                            @watched_at = :watched_at, 
+                            @watch_duration = :watch_duration,
+                            @device_type = :device_type,
+                            @completed = :completed
+                        """),
+                        record
+                    )
+
+            except Exception as e:
+                print(f"Couldn't load watch history on database: {e}")

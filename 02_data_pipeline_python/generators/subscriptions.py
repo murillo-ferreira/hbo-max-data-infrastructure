@@ -1,4 +1,3 @@
-# %%
 from faker import Faker
 import random
 from config.database import create_engine
@@ -13,25 +12,25 @@ Faker.seed(191357)
 with engine.connect() as conn:
     existing_ids = conn.execute(text("SELECT id FROM dbo.users")).scalars().all()
     user_data = conn.execute(text("""
-                            WITH RankedSubscriptions AS (
-                                SELECT 
-                                    user_id,
-                                    plan_id,
-                                    begin_date,
-                                    ROW_NUMBER() OVER (
-                                        PARTITION BY user_id 
-                                        ORDER BY begin_date DESC
-                                    ) AS rn
-                                FROM dbo.subscriptions
-                                WHERE status = 'ACTIVE'
-                            )
-                            SELECT 
-                                user_id, 
-                                plan_id, 
-                                begin_date 
-                            FROM RankedSubscriptions 
-                            WHERE rn = 1;
-                            """)).mappings().all()
+        WITH RankedSubscriptions AS (
+            SELECT 
+                user_id,
+                plan_id,
+                begin_date,
+                ROW_NUMBER() OVER (
+                    PARTITION BY user_id 
+                    ORDER BY begin_date DESC
+                ) AS rn
+            FROM dbo.subscriptions
+            WHERE status = 'ACTIVE'
+        )
+        SELECT 
+            user_id, 
+            plan_id, 
+            begin_date 
+        FROM RankedSubscriptions 
+        WHERE rn = 1;
+        """)).mappings().all()
     
 def get_eligible_churn_users() -> list:
     query = text("""
