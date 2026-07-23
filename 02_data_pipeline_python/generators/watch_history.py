@@ -8,7 +8,7 @@ engine = create_engine()
 with engine.connect() as conn:
     user_map = conn.execute(text("SELECT user_id, begin_date FROM dbo.subscriptions")).mappings().all()
     content_data = conn.execute(text("""
-        SELECT id, runtime
+        SELECT id AS title_id, runtime
         FROM dbo.titles
         WHERE runtime IS NOT NULL AND runtime > 0
         """)).mappings().all()
@@ -31,8 +31,7 @@ def watch_history_generator(quantity: int) -> list:
         random_minutes = random.randint(0, 59)
         random_seconds = random.randint(0, 59)
 
-        user_id = user_id
-        title_id = selected_content["id"]
+        title_id = selected_content["title_id"]
         watched_at = begin_datetime + dt.timedelta(
             days=sorted_days,
             hours=random_hours,
