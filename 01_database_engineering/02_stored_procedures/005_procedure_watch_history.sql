@@ -3,6 +3,7 @@ GO
 
 CREATE OR ALTER PROCEDURE dbo.sp_InsertWatchHistory
     @user_id INT,
+    @subscription_id INT, 
     @title_id INT,
     @watched_at DATETIME,
     @watch_duration INT,
@@ -14,9 +15,9 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
             INSERT INTO dbo.watch_history
-        (user_id, title_id, watched_at, watch_duration, device_type, completed)
+        (user_id, subscription_id, title_id, watched_at, watch_duration, device_type, completed)
     VALUES
-        (@user_id, @title_id, @watched_at, @watch_duration, @device_type, @completed);
+        (@user_id, @subscription_id, @title_id, @watched_at, @watch_duration, @device_type, @completed);
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
