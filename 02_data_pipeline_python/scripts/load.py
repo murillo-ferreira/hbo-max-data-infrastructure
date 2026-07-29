@@ -110,6 +110,7 @@ def exec_watch_history(procedure_data):
                     sqlalchemy.text("""
                         EXEC dbo.sp_InsertWatchHistory
                             @user_id = :user_id,
+                            @subscription_id = :subscription_id, 
                             @title_id = :title_id, 
                             @watched_at = :watched_at, 
                             @watch_duration = :watch_duration,

@@ -102,6 +102,7 @@ def run_load_churn_rate(percentage: float):
 
     print(f"{len(churn_records)} users affected with success.")
 
+
 def run_watch_history(quantity):
     history = watch_history_generator(quantity)
 
