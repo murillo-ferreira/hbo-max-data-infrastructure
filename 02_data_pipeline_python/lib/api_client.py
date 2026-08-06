@@ -15,6 +15,19 @@ headers = {
 }
 
 def get_paginated_ids(base_url: str) -> list:
+    """Retrieve all content IDs from a paginated TMDB discover endpoint.
+
+    Walks through every page of results returned by TMDB, throttling
+    requests to stay within the API's rate limits, and collects the ID
+    of each item found.
+
+    Args:
+        base_url (str): TMDB discover endpoint URL (without the "page"
+            query parameter), e.g. the movie or TV show discover URL.
+
+    Returns:
+        list: IDs (int) of all items found across every page.
+    """
     all_ids = []
     page = 1
     total_pages = 1
@@ -39,7 +52,17 @@ def get_paginated_ids(base_url: str) -> list:
     return all_ids
 
 def get_hbo_movie_ids() -> list:
+    """Retrieve the IDs of all movies currently available on HBO Max via TMDB.
+
+    Returns:
+        list: IDs (int) of all matching movies.
+    """
     return get_paginated_ids(MOVIE_URL)
 
 def get_hbo_tv_show_ids() -> list:
+    """Retrieve the IDs of all TV shows currently available on HBO Max via TMDB.
+
+    Returns:
+        list: IDs (int) of all matching TV shows.
+    """
     return get_paginated_ids(SHOW_URL)

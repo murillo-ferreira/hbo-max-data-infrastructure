@@ -16,28 +16,43 @@ def get_existing_ids():
         result = conn.execute(text("SELECT tmdb_id FROM dbo.titles"))
         return {row[0] for row in result}
 
-def exec_pipeline(df:pd.DataFrame):
+def exec_pipeline(df: pd.DataFrame):
+    """Load a batch of new titles into the database and log the outcome.
+
+    Runs the incremental load as the pipeline's final step: converts
+    the DataFrame to records suitable for the stored procedure (mapping
+    missing values to 'None'), loads them, and records a SUCCESS or
+    FAILED entry in the pipeline log accordingly. If there is nothing
+    new to load, logs a no-op SUCCESS and exits early without calling
+    the loader. On any error during loading, logs a FAILED entry with
+    the error message and terminates the process.
+
+    Args:
+        df (pd.DataFrame): New titles to load, matching the dbo.titles
+            schema and including a 'tmdb_id' column.
+
+    Returns:
+        None
+    """
     total_valid_ids = 0
     last_valid_id = None
 
     try:
         if df.empty:
-                print("No new data to process. All database records are up to date.")
-                log(
-                    status_execution="SUCCESS",
-                    last_processed_id=None,
-                    total_records_processed=0,
-                    error_message="No new data to process."
-                )
-                return
-            
+            print("No new data to process. All database records are up to date.")
+            log(
+                status_execution="SUCCESS",
+                last_processed_id=None,
+                total_records_processed=0,
+                error_message="No new data to process."
+            )
+            return
         total_valid_ids = len(df)
         last_valid_id = str(df["tmdb_id"].iloc[-1])
 
         # Convert np.nan to None (NULL)
         raw_records = df.to_dict(orient="records")
         procedureData = [{k: (None if pd.isna(v) else v) for k, v in r.items()} for r in raw_records]
-        
         # Incremental load via stored procedure
         exec_load(procedureData)
 
@@ -45,19 +60,19 @@ def exec_pipeline(df:pd.DataFrame):
         print(f"Last valid ID: {last_valid_id}")
 
         log(
-        status_execution="SUCCESS",
-        last_processed_id=last_valid_id,
-        total_records_processed=total_valid_ids,
-        error_message=None
+            status_execution="SUCCESS",
+            last_processed_id=last_valid_id,
+            total_records_processed=total_valid_ids,
+            error_message=None
         )
 
     except Exception as critical_error:
         print(f"An error occurred: {critical_error}")
         log(
-        status_execution="FAILED",
-        last_processed_id=last_valid_id,
-        total_records_processed=total_valid_ids,
-        error_message=str(critical_error)
+            status_execution="FAILED",
+            last_processed_id=last_valid_id,
+            total_records_processed=total_valid_ids,
+            error_message=str(critical_error)
         )
         sys.exit(1)
 

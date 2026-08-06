@@ -7,6 +7,27 @@ MOVIE_DETAIL_URL = "https://api.themoviedb.org/3/movie/"
 SHOW_DETAIL_URL = "https://api.themoviedb.org/3/tv/"
 
 def fetch_content_data(content_ids:list, base_url: str, content_type: str, existing_ids: set) -> list:
+    """Fetch detailed metadata from TMDB for a set of content IDs.
+
+    Skips any ID already present in the catalog to avoid redundant
+    calls, tagging each fetched record with its content type so movies
+    and TV shows can be told apart downstream. Requests are throttled,
+    and a failed or errored request is logged and skipped rather than
+    stopping the whole batch.
+
+    Args:
+        content_ids (list): TMDB IDs (int) to fetch details for.
+        base_url (str): TMDB detail endpoint URL to which each ID is
+            appended (e.g. the movie or TV show detail URL).
+        content_type (str): Label to tag each result with, e.g.
+            "MOVIE" or "SHOW".
+        existing_ids (set): IDs already present in the catalog; these
+            are skipped.
+
+    Returns:
+        list: Raw TMDB detail responses (dict) for each newly fetched
+        item, each including a "type" field set to "content_type".
+    """
     results = []
 
     with requests.Session() as session:
@@ -32,6 +53,27 @@ def fetch_content_data(content_ids:list, base_url: str, content_type: str, exist
     return results
 
 def clean_df_content(data_list: list, date_field: str, name_field: str = "title") -> pd.DataFrame:
+    """Normalize raw TMDB content data into the dbo.titles table schema.
+
+    Reconciles the differing field names and structures between TMDB's
+    movie and TV show responses (e.g. varying date and title field
+    names, list- vs count-based season data) into one consistent
+    tabular format ready for loading into the catalog.
+
+    Args:
+        data_list (list): Raw TMDB detail records (dict) as returned by
+            :func:'fetch_content_data'.
+        date_field (str): Name of the source field holding the release
+            date (e.g. "release_date" for movies, "first_air_date" for
+            TV shows).
+        name_field (str): Name of the source field holding the title
+            (e.g. "title" for movies, "name" for TV shows). Defaults to
+            "title".
+
+    Returns:
+        pandas.DataFrame: One row per item, with columns matching the
+        dbo.titles schema. Empty if "data_list" is empty.
+    """
     if not data_list:
         return pd.DataFrame()
 
@@ -83,12 +125,32 @@ def clean_df_content(data_list: list, date_field: str, name_field: str = "title"
     return df[cols_order]
 
 def movies_df(existing_ids):
+    """Fetch and clean data for all HBO Max movies not yet in the catalog.
+
+    Args:
+        existing_ids (set): TMDB movie IDs already present in the
+            catalog; these are skipped when fetching.
+
+    Returns:
+        pandas.DataFrame: One row per new movie, matching the
+        dbo.titles schema.
+    """
     movies_raw = fetch_content_data(get_hbo_movie_ids(), MOVIE_DETAIL_URL, "MOVIE", existing_ids)
     dfMovies = clean_df_content(movies_raw, "release_date", "title")
 
     return dfMovies
 
 def tv_shows_df(existing_ids):
+    """Fetch and clean data for all HBO Max TV shows not yet in the catalog.
+
+    Args:
+        existing_ids (set): TMDB TV show IDs already present in the
+            catalog; these are skipped when fetching.
+
+    Returns:
+        pandas.DataFrame: One row per new TV show, matching the
+        dbo.titles schema.
+    """
     tv_shows_raw = fetch_content_data(get_hbo_tv_show_ids(), SHOW_DETAIL_URL, "SHOW", existing_ids)
     dfTVShows = clean_df_content(tv_shows_raw, "first_air_date", "name")
 
