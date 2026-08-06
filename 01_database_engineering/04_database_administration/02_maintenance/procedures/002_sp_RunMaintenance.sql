@@ -52,7 +52,7 @@ BEGIN
     UPDATE STATISTICS dbo.subscriptions WITH FULLSCAN;
     INSERT INTO dbo.maintenance_log
     VALUES
-        ('Stats Update', GETDATE(), 'SUCCESS', 'Estatísticas de subscriptions atualizadas.');
+        ('Stats Update', GETDATE(), 'SUCCESS', 'Subscriptions statistics updated.');
 END TRY
 BEGIN CATCH
     INSERT INTO dbo.maintenance_log

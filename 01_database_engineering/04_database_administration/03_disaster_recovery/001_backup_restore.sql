@@ -3,10 +3,10 @@ GO
 
 -- 1. Create a full backup of the database hbo_db locally in Docker
 BACKUP DATABASE hbo_db
-TO DISK = '/var/opt/mssql/backup/hbo_db.bak' -- Nome padronizado conforme o Roadmap
+TO DISK = '/var/opt/mssql/backup/hbo_db.bak'
 WITH FORMAT, CHECKSUM,
     MEDIANAME = 'SQLServerBackups',
-    NAME = 'Full Backup of hbo_db'; -- Nome interno em inglês
+    NAME = 'Full Backup of hbo_db';
 GO
 
 
