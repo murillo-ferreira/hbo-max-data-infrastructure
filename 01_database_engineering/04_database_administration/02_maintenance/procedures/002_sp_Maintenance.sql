@@ -33,7 +33,7 @@ BEGIN
             EXEC sp_executesql @sql;
             INSERT INTO dbo.maintenance_log
         VALUES
-            ('Index Maint', GETDATE(), 'SUCCESS', @indexName + ' processado.');
+            ('Index Maint', GETDATE(), 'SUCCESS', @indexName + ' processed.');
         END TRY
         BEGIN CATCH
             INSERT INTO dbo.maintenance_log
