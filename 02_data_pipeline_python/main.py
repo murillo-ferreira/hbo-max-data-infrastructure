@@ -125,9 +125,14 @@ def run_watch_history(quantity):
 
     print(f"{len(history)} watch histories inserted with success.")
 
-exec_pipeline(dfTotal)
-run_users_load(10000)
-run_subscriptions_load(10000)
-run_load_second_subscriptions(0.3)
-run_load_churn_rate(0.3)
-run_watch_history(100000)
+def main():
+    """Runs the complete execution of the HBO Max data pipeline."""
+    exec_pipeline(dfTotal)
+    run_users_load(10000)
+    run_subscriptions_load(10000)
+    run_load_second_subscriptions(0.3)
+    run_load_churn_rate(0.3)
+    run_watch_history(100000)
+
+if __name__ == "__main__":
+    main()
