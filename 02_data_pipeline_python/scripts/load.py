@@ -4,9 +4,11 @@ from config.database import create_engine
 engine = create_engine()
 
 def exec_load(procedure_data):
-    with engine.begin() as conn:
-        for record in procedure_data:
-            try:
+    success_count = 0
+    error_count = 0
+    for record in procedure_data:
+        try:
+            with engine.begin() as conn:
                 conn.execute(
                     sqlalchemy.text("""
                         EXEC dbo.sp_UpsertTitles 
@@ -26,10 +28,12 @@ def exec_load(procedure_data):
                     """),
                     record
                 )
-            
-            except Exception as e:
-                print(f"Fatal error on TMDB ID {record.get('tmdb_id')}: {e}")
-                raise
+            success_count += 1
+        except Exception as e:
+            error_count += 1
+            print(f"Error loading record for tmdb_id {record.get('tmdb_id')}: {e}")
+    
+    print(f"Titles Load Completed: {success_count} success, {error_count} errors.")
 
 def exec_load_users(procedure_data):
     with engine.begin() as conn:
@@ -65,6 +69,7 @@ def exec_load_subscriptions(procedure_data):
             
             except Exception as e:
                 print(f"Couldn't load subscription on database: {e}")
+                raise
 
 def exec_load_second_subscriptions(procedure_data):
     with engine.begin() as conn:
@@ -83,6 +88,7 @@ def exec_load_second_subscriptions(procedure_data):
             
             except Exception as e:
                 print(f"Couldn't load second subscription on database: {e}")
+                raise
 
 def exec_load_churn_rate(procedure_data):
     with engine.begin() as conn:
@@ -101,11 +107,15 @@ def exec_load_churn_rate(procedure_data):
 
             except Exception as e:
                 print(f"Couldn't cancel subscription: {e}")
+                raise
 
 def exec_watch_history(procedure_data):
-    with engine.begin() as conn:
-        for record in procedure_data:
-            try:
+    success_count = 0
+    error_count = 0
+
+    for record in procedure_data:
+        try:
+            with engine.begin() as conn:
                 conn.execute(
                     sqlalchemy.text("""
                         EXEC dbo.sp_InsertWatchHistory
@@ -116,9 +126,12 @@ def exec_watch_history(procedure_data):
                             @watch_duration = :watch_duration,
                             @device_type = :device_type,
                             @completed = :completed
-                        """),
-                        record
-                    )
+                    """),
+                    record
+                )
+            success_count += 1
+        except Exception as e:
+            error_count += 1
+            print(f"Error loading record for user_id {record.get('user_id')}: {e}")
 
-            except Exception as e:
-                print(f"Couldn't load watch history on database: {e}")
+    print(f"Watch History Load Completed: {success_count} success, {error_count} errors.")
