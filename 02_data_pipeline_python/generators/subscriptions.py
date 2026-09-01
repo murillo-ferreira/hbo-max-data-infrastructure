@@ -9,29 +9,6 @@ engine = create_engine()
 fake = Faker()
 Faker.seed(191357)
 
-with engine.connect() as conn:
-    existing_ids = conn.execute(text("SELECT id FROM dbo.users")).scalars().all()
-    user_data = conn.execute(text("""
-        WITH RankedSubscriptions AS (
-            SELECT 
-                user_id,
-                plan_id,
-                begin_date,
-                ROW_NUMBER() OVER (
-                    PARTITION BY user_id 
-                    ORDER BY begin_date DESC
-                ) AS rn
-            FROM dbo.subscriptions
-            WHERE status = 'ACTIVE'
-        )
-        SELECT 
-            user_id, 
-            plan_id, 
-            begin_date 
-        FROM RankedSubscriptions 
-        WHERE rn = 1;
-        """)).mappings().all()
-
 def fake_subscriptions_generator(quantity: int) -> list:
     """Generate a batch of brand-new fake subscriptions for random users.
 
@@ -47,6 +24,9 @@ def fake_subscriptions_generator(quantity: int) -> list:
         list: A list of dicts, each representing a new subscription
         record with "user_id", "plan_id", and "begin_date".
     """
+    with engine.connect() as conn:
+        existing_ids = conn.execute(text("SELECT id FROM dbo.users")).scalars().all()
+        
     subscriptions_list = []
     sampled_users = random.sample(existing_ids, quantity)
 
@@ -65,7 +45,28 @@ def fake_subscriptions_generator(quantity: int) -> list:
 
     return subscriptions_list
 
-
+def get_active_subscriptions() -> list:
+    """Fetch the most recent active subscription for each user."""
+    user_data = text("""
+        WITH RankedSubscriptions AS (
+            SELECT 
+                user_id,
+                plan_id,
+                begin_date,
+                ROW_NUMBER() OVER (
+                    PARTITION BY user_id 
+                    ORDER BY begin_date DESC
+                ) AS rn
+            FROM dbo.subscriptions
+            WHERE status = 'ACTIVE'
+        )
+        SELECT user_id, plan_id, begin_date 
+        FROM RankedSubscriptions 
+        WHERE rn = 1;
+    """)
+    with engine.connect() as conn:
+        return conn.execute(user_data).mappings().all()
+    
 def second_fake_subscriptions_generator(user_data: list) -> list:
     """Simulate plan changes (renewals) for users' existing subscriptions.
 
