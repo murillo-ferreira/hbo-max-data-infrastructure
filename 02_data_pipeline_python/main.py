@@ -3,7 +3,8 @@ import pandas as pd
 import random
 from scripts.load import exec_load, exec_load_users, exec_load_subscriptions, exec_load_second_subscriptions, exec_load_churn_rate, exec_watch_history
 from generators.users import fake_user_generator
-from generators.subscriptions import fake_subscriptions_generator, second_fake_subscriptions_generator, get_eligible_churn_users, churn_rate_generator, watch_history_generator
+from generators.subscriptions import fake_subscriptions_generator, get_active_subscriptions, second_fake_subscriptions_generator, get_eligible_churn_users, churn_rate_generator
+from generators.watch_history import watch_history_generator
 from lib.logger import log
 from config.database import create_engine
 from sqlalchemy import text
@@ -97,8 +98,7 @@ def run_subscriptions_load(quantity):
     print(f"{len(users)} users inserted with success.")
 
 def run_load_second_subscriptions(percentage: float):
-    with engine.connect() as conn:
-        active_users = conn.execute(text("SELECT user_id, plan_id, begin_date FROM dbo.subscriptions WHERE status = 'ACTIVE'")).mappings().all()
+    active_users = get_active_subscriptions()
 
     sample_size = int(len(active_users) * percentage)
     sample_users = random.sample(active_users, sample_size)
